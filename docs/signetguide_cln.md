@@ -95,36 +95,11 @@ chain=liquidtestnet
 [liquidtestnet]
 
 # General settings:
-listen=1
-txindex=1
-validatepegin=0
-anyonecanspendaremine=0
-initialfreecoins=2100000000000000
-con_dyna_deploy_start=0
-con_max_block_sig_size=150
-checkblockindex=0 
-addnode=liquid-testnet.blockstream.com:18892
-addnode=liquidtestnet.com:18891
-fallbackfee=0.00000100
-daemon=1
-con_has_parent_chain=0
-parentgenesisblockhash=NULL
-pubkeyprefix=36
-scriptprefix=19
-blindedprefix=23
-bech32_hrp=tex
-blech32_hrp=tlq
-pchmessagestart=410edd62
-dynamic_epoch_length=1000
-signblockscript=51210217e403ddb181872c32a0cd468c710040b2f53d8cac69f18dad07985ee37e9a7151ae
-
+trim_headers=1
 rpcport=18884
 rpcuser=admin1
 rpcpassword=123
 rpcbind=127.0.0.1
-addnode=95.217.184.148:18444
-evbparams=dynafed:0:::
-multi_data_permitted=1
 EOF
 ```
 
@@ -160,11 +135,13 @@ Add signet config file
 
 ```bash
 cat <<EOF > ~/.lightning/config
-signet
+network=signet
 bitcoin-datadir=$HOME/.bitcoin
 addr=0.0.0.0:39375
 log-level=debug
 log-file=$HOME/.lightning/log
+grpc-port=42069
+rest-port=42070
 EOF
 ```
 
@@ -215,11 +192,11 @@ touch $HOME/.lightning/signet/peerswap/peerswap.conf
 
 ```
 echo '[Liquid]
-rpcuser="admin1"
-rpcpassword="123"
-rpchost="http://localhost"
+rpcuser=admin1
+rpcpassword=123
+rpchost=http://localhost
 rpcport=18884
-rpcwallet="swap"' > $HOME/.lightning/signet/peerswap.conf
+rpcwallet=swap' > $HOME/.lightning/signet/peerswap.conf
 ```
 
 To disable Liquid swaps you can add the following to the PeerSwap config file:
