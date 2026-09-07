@@ -55,6 +55,14 @@ func (h *messageHandler) processMessage(ctx context.Context, msg CustomMessage) 
 		h.handlePollMessage(ctx, msg)
 	case messages.MESSAGETYPE_REQUEST_POLL:
 		h.handleRequestPollMessage(ctx, msg)
+	case messages.MESSAGETYPE_SWAPINREQUEST,
+		messages.MESSAGETYPE_SWAPOUTREQUEST,
+		messages.MESSAGETYPE_SWAPINAGREEMENT,
+		messages.MESSAGETYPE_SWAPOUTAGREEMENT,
+		messages.MESSAGETYPE_OPENINGTXBROADCASTED,
+		messages.MESSAGETYPE_CANCELED,
+		messages.MESSAGETYPE_COOPCLOSE:
+		// The swap service handles these messages independently.
 	default:
 		log.Printf("unknown message type: %v", msg.Type)
 	}
