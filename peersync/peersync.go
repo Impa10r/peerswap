@@ -244,8 +244,14 @@ func (ps *PeerSync) Stop() error {
 }
 
 func (ps *PeerSync) localCapabilityForPeer(peer PeerID) *PeerCapability {
-	assets := make([]Asset, len(ps.supportedAssets))
-	copy(assets, ps.supportedAssets)
+	// Backend availability is retained for recovery, but L-BTC must not be
+	// advertised as available for new swaps during the suspension.
+	assets := make([]Asset, 0, len(ps.supportedAssets))
+	for _, asset := range ps.supportedAssets {
+		if asset != AssetLBTC {
+			assets = append(assets, asset)
+		}
+	}
 
 	allowed := true
 	if ps.guard != nil {

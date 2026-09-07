@@ -24,6 +24,8 @@ import (
 	"github.com/lightningnetwork/lnd/lnwire"
 )
 
+const liquidAsset = "lbtc"
+
 type PeerswapServer struct {
 	liquidWallet   wallet.Wallet
 	swaps          *swap.SwapService
@@ -110,6 +112,9 @@ func NewPeerswapServer(
 }
 
 func (p *PeerswapServer) SwapOut(ctx context.Context, request *SwapOutRequest) (*SwapResponse, error) {
+	if request.GetAsset() == liquidAsset {
+		return nil, swap.ErrNewLiquidSwapsDisabled
+	}
 	if request.SwapAmount <= 0 {
 		return nil, errors.New("Missing required swap_amount parameter")
 	}
@@ -217,6 +222,9 @@ func (p *PeerswapServer) isPeerConnected(ctx context.Context, peerId string) boo
 }
 
 func (p *PeerswapServer) SwapIn(ctx context.Context, request *SwapInRequest) (*SwapResponse, error) {
+	if request.GetAsset() == liquidAsset {
+		return nil, swap.ErrNewLiquidSwapsDisabled
+	}
 	var swapchan *lnrpc.Channel
 	chans, err := p.lnd.ListChannels(ctx, &lnrpc.ListChannelsRequest{ActiveOnly: true})
 	if err != nil {

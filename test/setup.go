@@ -222,8 +222,20 @@ func clnclnElementsSetup(
 	fundAmt uint64,
 ) (*testframework.BitcoinNode, *testframework.LiquidNode, []*CLightningNodeWithLiquid, string) {
 	t.Helper()
+	return clnclnElementsSetupWithPlugin(t, fundAmt, "")
+}
+
+func clnclnElementsSetupWithPlugin(
+	t *testing.T,
+	fundAmt uint64,
+	plugin string,
+) (*testframework.BitcoinNode, *testframework.LiquidNode, []*CLightningNodeWithLiquid, string) {
+	t.Helper()
 
 	builder := NewHarnessBuilder(t)
+	if plugin != "" {
+		builder.peerswapPluginPath = plugin
+	}
 	bitcoind := builder.Bitcoind()
 
 	liquidd, err := testframework.NewLiquidNode(builder.TestDir(), bitcoind, 1)
@@ -236,6 +248,7 @@ func clnclnElementsSetup(
 	for i := 1; i <= 2; i++ {
 		walletName := fmt.Sprintf("swap%d", i)
 		cfg := mustToml(t, map[string]any{
+			"bitcoin": map[string]any{"enabled": false},
 			"liquid": map[string]any{
 				"rpcuser":     liquidd.RpcUser,
 				"rpcpassword": liquidd.RpcPassword,

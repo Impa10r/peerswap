@@ -228,12 +228,12 @@ func Test_OnlyOneActiveSwapPerChannel(t *testing.T) {
 		failures: 0,
 	})
 
-	_, err := service.SwapOut("peer", "lbtc", "channelID", "alice", uint64(100000), 0)
+	_, err := service.SwapOut("peer", "btc", "channelID", "alice", uint64(100000), 0)
 	assert.Error(t, err, "expected error")
 	assert.ErrorIs(t, err, ActiveSwapError{channelId: "channelID", swapId: swapId.String()})
 	t.Logf("Got Error: %s", err.Error())
 
-	_, err = service.SwapIn("peer", "lbtc", "channelID", "alice", uint64(100000), 0)
+	_, err = service.SwapIn("peer", "btc", "channelID", "alice", uint64(100000), 0)
 	assert.Error(t, err, "expected error")
 	assert.ErrorIs(t, err, ActiveSwapError{channelId: "channelID", swapId: swapId.String()})
 	t.Logf("Got Error: %s", err.Error())
@@ -302,8 +302,16 @@ func TestMessageFromUnexpectedPeer(t *testing.T) {
 		{name: "opening tx broadcasted message", message: &OpeningTxBroadcastedMessage{SwapId: aliceSwap.SwapId}, assertError: true},
 		{name: "coop close message", message: &CoopCloseMessage{SwapId: aliceSwap.SwapId}, assertError: true},
 		{name: "cancel message", message: &CancelMessage{SwapId: aliceSwap.SwapId}, assertError: true},
-		{name: "swap in request message", message: &SwapInRequestMessage{SwapId: NewSwapId()}, assertError: false},
-		{name: "swap out request message", message: &SwapOutRequestMessage{SwapId: NewSwapId()}, assertError: false},
+		{
+			name:        "swap in request message",
+			message:     &SwapInRequestMessage{SwapId: NewSwapId(), Network: suspensionBitcoinNetwork},
+			assertError: false,
+		},
+		{
+			name:        "swap out request message",
+			message:     &SwapOutRequestMessage{SwapId: NewSwapId(), Network: suspensionBitcoinNetwork},
+			assertError: false,
+		},
 	}
 
 	for _, tc := range tests {

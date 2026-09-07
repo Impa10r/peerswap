@@ -376,6 +376,9 @@ func (s *SwapService) OnCsvPassed(swapId string) error {
 // todo move wallet and chain / channel validation logic here
 // SwapOut starts a new swap out process
 func (s *SwapService) SwapOut(peer string, chain string, channelId string, initiator string, amtSat uint64, premiumLimitRatePpm int64) (*SwapStateMachine, error) {
+	if chain == l_btc_chain {
+		return nil, ErrNewLiquidSwapsDisabled
+	}
 	if !s.swapServices.policy.NewSwapsAllowed() {
 		return nil, fmt.Errorf("swaps are disabled")
 	}
@@ -441,6 +444,9 @@ func (s *SwapService) SwapOut(peer string, chain string, channelId string, initi
 // todo check prerequisites
 // SwapIn starts a new swap in process
 func (s *SwapService) SwapIn(peer string, chain string, channelId string, initiator string, amtSat uint64, premiumLimitRatePPM int64) (*SwapStateMachine, error) {
+	if chain == l_btc_chain {
+		return nil, ErrNewLiquidSwapsDisabled
+	}
 	if !s.swapServices.policy.NewSwapsAllowed() {
 		return nil, fmt.Errorf("swaps are disabled")
 	}
@@ -543,6 +549,9 @@ func (s *SwapService) estimateMaximumSwapAmountSat(chain string) (uint64, error)
 
 // OnSwapInRequestReceived creates a new swap-in process and sends the event to the swap statemachine
 func (s *SwapService) OnSwapInRequestReceived(swapId *SwapId, peerId string, message *SwapInRequestMessage) error {
+	if message.Network == "" || message.Asset != "" {
+		return s.rejectNewLiquidSwap(swapId, peerId)
+	}
 	var (
 		premiumValue int64
 		err          error
@@ -654,6 +663,9 @@ func (s *SwapService) OnSwapInRequestReceived(swapId *SwapId, peerId string, mes
 
 // OnSwapOutRequestReceived creates a new swap-out process and sends the event to the swap statemachine
 func (s *SwapService) OnSwapOutRequestReceived(swapId *SwapId, peerId string, message *SwapOutRequestMessage) error {
+	if message.Network == "" || message.Asset != "" {
+		return s.rejectNewLiquidSwap(swapId, peerId)
+	}
 	var (
 		premiumValue int64
 		err          error
