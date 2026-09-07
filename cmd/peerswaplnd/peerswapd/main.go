@@ -198,7 +198,7 @@ func run() error {
 	if cfg.LiquidEnabled {
 		if cfg.ElementsConfig.RpcUser != "" {
 			supportedAssets = append(supportedAssets, "lbtc")
-			log.Infof("Liquid swaps enabled")
+			log.Infof("Liquid swaps will be refused. Recovery enabled.")
 			liquidConfig := cfg.ElementsConfig
 
 			// This call is blocking, waiting for elements to come alive and sync.
@@ -231,7 +231,8 @@ func run() error {
 			}
 			liquidOnChainService = onchain.NewLiquidOnChain(liquidRpcWallet, liquidChain)
 		} else if cfg.LWKConfig.Enabled() {
-			log.Infof("Liquid swaps enabled with LWK. Network: %s, wallet: %s", cfg.LWKConfig.GetNetwork(), cfg.LWKConfig.GetWalletName())
+			log.Infof("Liquid swaps will be refused. Recovery enabled. LWK network: %s, wallet: %s",
+				cfg.LWKConfig.GetNetwork(), cfg.LWKConfig.GetWalletName())
 			// This call is blocking, waiting for elements to come alive and sync.
 			lc, err2 := lwk.NewLWKRpcWallet(ctx, cfg.LWKConfig)
 			if err2 != nil {
