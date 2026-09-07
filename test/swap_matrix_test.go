@@ -3,15 +3,16 @@ package test
 import (
 	"math"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/elementsproject/peerswap/swap"
 )
 
 func Test_SwapInMatrix(t *testing.T) {
-    t.Helper()
-    // Run this top-level matrix in parallel with others to reduce CI wall time.
-    t.Parallel()
+	t.Helper()
+	// Run this top-level matrix in parallel with others to reduce CI wall time.
+	t.Parallel()
 
 	cases := []struct {
 		name string
@@ -30,6 +31,10 @@ func Test_SwapInMatrix(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
+			if strings.HasPrefix(tc.name, "liquid_") || strings.HasPrefix(tc.name, "lwk_") {
+				runLiquidSuspension(t, tc.name)
+				return
+			}
 			tc.run(t)
 		})
 	}
@@ -343,9 +348,9 @@ func runLwkLndLndSwapIn(t *testing.T) {
 }
 
 func Test_SwapOutMatrix(t *testing.T) {
-    t.Helper()
-    // Run this top-level matrix in parallel with others to reduce CI wall time.
-    t.Parallel()
+	t.Helper()
+	// Run this top-level matrix in parallel with others to reduce CI wall time.
+	t.Parallel()
 
 	cases := []struct {
 		name string
@@ -364,6 +369,10 @@ func Test_SwapOutMatrix(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
+			if strings.HasPrefix(tc.name, "liquid_") || strings.HasPrefix(tc.name, "lwk_") {
+				runLiquidSuspension(t, tc.name)
+				return
+			}
 			tc.run(t)
 		})
 	}

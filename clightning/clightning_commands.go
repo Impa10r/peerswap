@@ -23,6 +23,8 @@ import (
 	"github.com/elementsproject/peerswap/swap"
 )
 
+const liquidAsset = "lbtc"
+
 type SwapCanceledError string
 
 func (e SwapCanceledError) Error() string {
@@ -194,6 +196,9 @@ func (l *SwapOut) Name() string {
 }
 
 func (l *SwapOut) Call() (jrpc2.Result, error) {
+	if l.Asset == liquidAsset {
+		return nil, swap.ErrNewLiquidSwapsDisabled
+	}
 	if !l.cl.isReady {
 		return nil, ErrWaitingForReady
 	}
@@ -316,6 +321,9 @@ func (l *SwapIn) Name() string {
 }
 
 func (l *SwapIn) Call() (jrpc2.Result, error) {
+	if l.Asset == liquidAsset {
+		return nil, swap.ErrNewLiquidSwapsDisabled
+	}
 	if !l.cl.isReady {
 		return nil, ErrWaitingForReady
 	}

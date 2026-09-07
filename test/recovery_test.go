@@ -3,6 +3,8 @@ package test
 import (
 	"errors"
 	"math"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -278,7 +280,12 @@ func Test_Recover_PassedSwap_LBTC(t *testing.T) {
 
 	require := requireNew(t)
 
-	bitcoind, liquidd, lightningds, scid := clnclnElementsSetup(t, uint64(math.Pow10(6)))
+	currentPlugin := NewHarnessBuilder(t).peerswapPluginPath
+	legacyPlugin := filepath.Join(filepath.Dir(currentPlugin), "peerswap-v7.0.0")
+	if _, err := os.Stat(legacyPlugin); err != nil {
+		t.Fatalf("run make legacy-test-plugin first: %v", err)
+	}
+	bitcoind, liquidd, lightningds, scid := clnclnElementsSetupWithPlugin(t, uint64(math.Pow10(6)), legacyPlugin)
 	DumpOnFailure(t, WithBitcoin(bitcoind), WithLiquid(liquidd), WithCLightningNodes(lightningds, nil))
 
 	var channelBalances []uint64
@@ -363,6 +370,12 @@ func Test_Recover_PassedSwap_LBTC(t *testing.T) {
 
 	// Stop taker peer so that csv can trigger
 	require.NoError(params.takerNode.Stop())
+	// Restart the existing data directory using the suspended version.
+	for i, arg := range params.takerPeerswap.CmdLine {
+		if arg == "--plugin="+legacyPlugin {
+			params.takerPeerswap.CmdLine[i] = "--plugin=" + currentPlugin
+		}
+	}
 
 	// Generate enough blocks to trigger csv
 	require.NoError(params.chaind.GenerateBlocks(params.csv + 50))

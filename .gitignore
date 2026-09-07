@@ -36,3 +36,4 @@ out/test-builds/pscli
 
 # # build output of tools
 tools/bin/
+out/test-builds/peerswap-v7.0.0

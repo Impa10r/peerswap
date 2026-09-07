@@ -263,7 +263,7 @@ func Test_ClnPluginConfig_ElementsAuthCookie(t *testing.T) {
 	requireNoError(t, err)
 
 	err = lightningd.WaitForLog(
-		"Liquid swaps enabled",
+		"Liquid swaps will be refused. Recovery enabled.",
 		testframework.TIMEOUT,
 	)
 	assertNoError(t, err)

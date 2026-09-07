@@ -76,6 +76,9 @@ ${TEST_BIN_DIR}/peerswap:
 	chmod a+x ${TEST_BIN_DIR}/peerswap
 
 # Test section. Has commands for local and ci testing.
+ifeq ($(RUN_INTEGRATION_TESTS),1)
+test: legacy-test-plugin
+endif
 test:
 	PAYMENT_RETRY_TIME=5 go test -tags dev -tags fast_test -race -timeout=10m -v ./...
 .PHONY: test
@@ -213,3 +216,21 @@ test-matrix-misc_3: test-bins
 .PHONY: test-matrix-lnd
 test-matrix-lnd: test-bins
 	${INTEGRATION_TEST_ENV} go test ${INTEGRATION_TEST_OPTS} ./lnd
+
+# Only the recovery integration test uses this historical binary. It starts a
+# contract before upgrading the same data directory to the suspended version.
+.PHONY: legacy-test-plugin
+legacy-test-plugin:
+	@set -eu; \
+	legacy_commit=578c740e8684e2121b6f8343569f262f6bd69f12; \
+	if ! git cat-file -e "$$legacy_commit^{commit}" 2>/dev/null; then \
+		git fetch origin tag v7.0.0; \
+	fi; \
+	legacy_source=$$(mktemp -d); \
+	trap 'rm -rf "$$legacy_source"' EXIT; \
+	git archive "$$legacy_commit" | tar -x -C "$$legacy_source"; \
+	mkdir -p "$(CURDIR)/$(TEST_BIN_DIR)"; \
+	cd "$$legacy_source"; \
+	go build -tags 'dev fast_test' -o "$(CURDIR)/$(TEST_BIN_DIR)/peerswap-v7.0.0" ./cmd/peerswap-plugin
+
+test-matrix-misc test-matrix-misc_2: legacy-test-plugin

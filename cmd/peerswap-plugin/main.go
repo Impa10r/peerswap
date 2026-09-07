@@ -211,7 +211,7 @@ func run(ctx context.Context, lightningPlugin *clightning.ClightningClient) erro
 
 		liquidOnChainService = onchain.NewLiquidOnChain(liquidRpcWallet, liquidChain)
 		supportedAssets = append(supportedAssets, "lbtc")
-		log.Infof("Liquid swaps enabled")
+		log.Infof("Liquid swaps will be refused. Recovery enabled.")
 	} else if config.LWK != nil && config.LWK.Enabled() {
 		liquidEnabled = true
 		lc, err2 := lwk.NewLWKRpcWallet(ctx, config.LWK)
@@ -225,7 +225,7 @@ func run(ctx context.Context, lightningPlugin *clightning.ClightningClient) erro
 		liquidRpcWallet = lc
 		liquidOnChainService = onchain.NewLiquidOnChain(liquidRpcWallet, config.LWK.GetChain())
 		supportedAssets = append(supportedAssets, "lbtc")
-		log.Infof("Liquid swaps enabled with LWK. Network: %s, wallet: %s",
+		log.Infof("Liquid swaps will be refused. Recovery enabled. LWK network: %s, wallet: %s",
 			config.LWK.GetNetwork(), config.LWK.GetWalletName())
 	} else {
 		log.Infof("Liquid swaps disabled")
